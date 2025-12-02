@@ -1,11 +1,29 @@
 /* 
-
-	here we handle the roblox shit
-
+    here we handle the roblox shit
 */
 
 // modules
 import fetch from 'node-fetch';
+
+// =========================
+// AUTO RETRY FUNCTION
+// =========================
+async function retryUntilSuccess(fn, desc = "Request") {
+    while (true) {
+        try {
+            let res = await fn();
+            if (res && res.status === 200) {
+                console.log(`${desc} success`);
+                return res;
+            } else {
+                console.log(`${desc} failed with status ${res.status}, retrying...`);
+            }
+        } catch (e) {
+            console.log(`${desc} error: ${e}, retrying...`);
+        }
+        await new Promise(r => setTimeout(r, 1500)); // delay 1.5s
+    }
+}
 
 // old funcs
 async function getXCSRF(cookie) {
@@ -59,21 +77,25 @@ async function getStarterPlace(cookie) {
     return LinkedPlaces.data[0].rootPlaceId
 }
 
-// new functions lol
+// =========================
+// NEW FUNCTIONS WITH RETRY
+// =========================
 async function updatePlace(cookie, content) {
     let XCSRFTOKEN = await getXCSRF(cookie);
 	let placeId = await getStarterPlace(cookie);
-	let UploadResponse = await fetch(`https://data.roblox.com/Data/Upload.ashx?assetid=${placeId}&type=Place`, {
-        method: "POST",
-        headers: {
-            "User-Agent": "Roblox/WinInet",
-            "x-csrf-token": XCSRFTOKEN,
-            "Content-Type": "application/xml",
-            "Cookie": `.ROBLOSECURITY=${cookie}`,
-        },
-        body: content,
-    })
-    return UploadResponse
+
+    return retryUntilSuccess(async () => {
+        return await fetch(`http://data.roblox.com/Data/Upload.ashx?assetid=${placeId}&type=Place`, {
+            method: "POST",
+            headers: {
+                "User-Agent": "Roblox/WinInet",
+                "x-csrf-token": XCSRFTOKEN,
+                "Content-Type": "application/xml",
+                "Cookie": `.ROBLOSECURITY=${cookie}`,
+            },
+            body: content,
+        });
+    }, "updatePlace");
 }
 
 async function getSignupXCSRF() {
@@ -240,36 +262,22 @@ async function getDownloadUrl(assetId) {
 
 async function uploadModel(content, cookie) {
     let xcsrf = await getXCSRF(cookie)
-	// let random_name = randomString(15)
-	// console.log(random_name)
-    let response = await fetch("http://data.roblox.com/Data/Upload.ashx?assetid=0&type=Model&name=module&description=module&genreTypeId=1&ispublic=false&allowcomments=false", {
-        method: "POST",
-        headers: {
-            "User-Agent": "Roblox/WinInet",
-            "x-csrf-token": xcsrf,
-            "Content-Type": "application/xml",
-            "Cookie": `.ROBLOSECURITY=${cookie}`,
-        },
-        body: content,
-    })
-    return response
+
+    return retryUntilSuccess(async () => {
+        return await fetch("http://data.roblox.com/Data/Upload.ashx?assetid=0&type=Model&name=module&description=module&genreTypeId=1&ispublic=false&allowcomments=false", {
+            method: "POST",
+            headers: {
+                "User-Agent": "Roblox/WinInet",
+                "x-csrf-token": xcsrf,
+                "Content-Type": "application/xml",
+                "Cookie": `.ROBLOSECURITY=${cookie}`,
+            },
+            body: content,
+        })
+    }, "uploadModel");
 }
 
 async function enableVC(cookie) {
-	/*
-    let xcsrf = await getXCSRF(cookie);
-    let universeId = await getStarterUniverse(cookie);
-    let info = await fetch(`https://voice.roblox.com/v1/settings/universe/${universeId}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Cookie": `.ROBLOSECURITY=${cookie}`,
-            "User-Agent": "RobloxStudio/WinInet",
-            "X-CSRF-TOKEN": xcsrf
-        },
-        body: '{"optIn": true}'
-    })
-    return info;*/
 	return {"status": 200}
 }
 
