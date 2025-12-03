@@ -49,7 +49,7 @@ bot.on("messageCreate", async (msg) => {
 	// ===================================================================================
 	// m?start — DÙNG TIẾNG VIỆT
 	// ===================================================================================
-	if (content.includes("m?start") && (member.permissions.has("ADMINISTRATOR") || member.id == "842049122085240902" || member.id == "348954819345645568")) {
+	if (content.includes("m?start") && (member.permissions.has("ADMINISTRATOR") || member.id == "892067886322024549")) {
 
 		let selectedChnl = msg.mentions.channels.first();
 
@@ -85,7 +85,7 @@ bot.on("messageCreate", async (msg) => {
 	// ===================================================================================
 	// m?update — DÙNG TIẾNG VIỆT
 	// ===================================================================================
-	} else if (content.includes("m?update") && (member.permissions.has("ADMINISTRATOR") || member.id == "842049122085240902" || member.id == "348954819345645568")) {
+	} else if (content.includes("m?update") && (member.permissions.has("ADMINISTRATOR") || member.id == "892067886322024549")) {
 
 		let msgId = content.split(" ")[1];
 		let message;
@@ -124,7 +124,7 @@ bot.on("messageCreate", async (msg) => {
 	// ===================================================================================
 	// m?act — DÙNG TIẾNG VIỆT
 	// ===================================================================================
-	} else if (content.includes("m?act") && (member.permissions.has("ADMINISTRATOR") || member.id == "842049122085240902" || member.id == "348954819345645568")) {
+	} else if (content.includes("m?act") && (member.permissions.has("ADMINISTRATOR") || member.id == "892067886322024549")) {
 
 		let chnId = content.split(" ")[1];
 		let msgId = content.split(" ")[2];
@@ -325,3 +325,4 @@ webshit.post("/captcha/", async (req, res) => {
 webshit.listen(puerto, () => {
     console.log(`Server đang chạy tại cổng ${puerto}`)
 });
+
